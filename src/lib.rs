@@ -20,6 +20,13 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
 }
 
+fn hash_password<'a, S>(password: S) -> String
+    where S: Into<String>
+{
+    let p: String = password.into();
+    p.to_owned()
+}
+
 pub fn get_users<'a>(conn: &PgConnection) -> Vec<User> {
     use schema::users::dsl::*;
 
@@ -29,9 +36,10 @@ pub fn get_users<'a>(conn: &PgConnection) -> Vec<User> {
 pub fn create_user<'a>(conn: &PgConnection, username: &'a str, password: &'a str) -> User {
     use schema::users;
 
+    let password = hash_password(password);
     let new_user = NewUser {
         username: username,
-        password: password,
+        password: &password,
     };
 
     diesel::insert(&new_user)
