@@ -1,0 +1,43 @@
+sudo: required
+language: rust
+rust:
+  - nightly
+
+branches:
+  only:
+  - master
+
+services:
+  - postgresql
+  - rabbitmq
+
+cache: cargo
+
+install:
+  - cargo install diesel_cli || true
+  - diesel --version
+
+before_script:
+  # Prepare DB
+  - psql -c 'create database schani_import;' -U postgres
+
+script:
+  # Copy testing env file if one exists
+  - if [[ -f .env.testing ]]; then cp .env.testing .env; fi
+
+  # Migrate
+  - diesel migration run
+  - diesel migration redo
+
+  # Build
+  - cargo build --verbose
+
+  # Test
+  - cargo test --verbose
+
+  # Test CLI tools
+  - cargo run --bin list_imports
+  - cargo run --bin create_import import1
+  - cargo run --bin create_import import2
+  - cargo run --bin list_imports
+
