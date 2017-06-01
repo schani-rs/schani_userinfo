@@ -1,5 +1,17 @@
 # schani_userinfo
 
+## API
+
+### Authenticate
+
+Verify a username-password combination. The password is specified as `password` POST parameter.
+
+``POST /user/<username>/authenticate``
+
+```bash
+curl -X POST localhost:8000/user/user1/authenticate -d password=pwd1
+```
+
 ## Development setup
 
 Start postgres database server:
