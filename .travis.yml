@@ -9,7 +9,6 @@ branches:
 
 services:
   - postgresql
-  - rabbitmq
 
 cache: cargo
 
@@ -26,18 +25,12 @@ script:
   - if [[ -f .env.testing ]]; then cp .env.testing .env; fi
 
   # Migrate
-  - diesel migration run
-  - diesel migration redo
+  # - diesel migration run
+  # - diesel migration redo
 
   # Build
   - cargo build --verbose
 
   # Test
   - cargo test --verbose
-
-  # Test CLI tools
-  - cargo run --bin list_imports
-  - cargo run --bin create_import import1
-  - cargo run --bin create_import import2
-  - cargo run --bin list_imports
 
