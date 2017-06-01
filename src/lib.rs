@@ -33,6 +33,19 @@ pub fn get_users<'a>(conn: &PgConnection) -> Vec<User> {
     users.load::<User>(conn).expect("Error loading users")
 }
 
+pub fn verify_password<'a>(conn: &PgConnection, user: &String, pwd: &String) -> bool {
+    use schema::users::dsl::*;
+
+    match users
+        .filter(username.eq(user))
+        .filter(password.eq(hash_password(pwd.to_owned())))
+        .limit(1)
+        .get_result::<User>(conn) {
+            Ok(_) => true,
+            Err(_) => false,
+        }
+}
+
 pub fn create_user<'a>(conn: &PgConnection, username: &'a str, password: &'a str) -> User {
     use schema::users;
 
