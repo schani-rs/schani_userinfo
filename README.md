@@ -12,6 +12,26 @@ Verify a username-password combination. The password is specified as `password` 
 curl -X POST localhost:8000/user/user1/authenticate -d password=pwd1
 ```
 
+### Save user setting
+
+Save a new key-value based setting.
+
+``PUT /user/<user_id>/setting``
+
+```bash
+curl -X PUT localhost:8000/user/1/setting -d key=test -d value=val
+```
+
+### Get user setting
+
+Retrieve the value of a setting.
+
+``GET /user/<user_id>/setting/<key>``
+
+```bash
+curl localhost:8000/user/1/setting/test
+```
+
 ## Development setup
 
 Start postgres database server:
