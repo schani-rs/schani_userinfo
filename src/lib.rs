@@ -5,12 +5,14 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_codegen;
 extern crate dotenv;
+extern crate pwhash;
 #[macro_use]
 extern crate serde_derive;
 
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use dotenv::dotenv;
+use pwhash::bcrypt;
 use std::env;
 use self::models::{User, NewUser, Setting, NewSetting};
 
@@ -24,13 +26,6 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
 }
 
-fn hash_password<'a, S>(password: S) -> String
-    where S: Into<String>
-{
-    let p: String = password.into();
-    p.to_owned()
-}
-
 pub fn get_users<'a>(conn: &PgConnection) -> Vec<User> {
     use schema::users::dsl::*;
 
@@ -40,20 +35,21 @@ pub fn get_users<'a>(conn: &PgConnection) -> Vec<User> {
 pub fn verify_password<'a>(conn: &PgConnection, user: &String, pwd: &String) -> bool {
     use schema::users::dsl::*;
 
-    match users
+    let user = match users
               .filter(username.eq(user))
-              .filter(password.eq(hash_password(pwd.to_owned())))
               .limit(1)
               .get_result::<User>(conn) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+        Ok(user) => user,
+        Err(_) => return false,
+    };
+
+    bcrypt::verify(pwd, &user.password)
 }
 
 pub fn create_user<'a>(conn: &PgConnection, username: &'a str, password: &'a str) -> User {
     use schema::users;
 
-    let password = hash_password(password);
+    let password = bcrypt::hash(password).unwrap();
     let new_user = NewUser {
         username: username,
         password: &password,
@@ -98,4 +94,34 @@ pub fn get_setting<'a>(conn: &PgConnection,
         .limit(1)
         .get_result(conn)
         .map_err(|err| err.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn verify_password_with_nonexistent_user() {
+        let conn = establish_connection();
+
+        assert!(verify_password(&conn, &"ferdinand".to_string(), &"123456".to_string()));
+    }
+
+    #[test]
+    fn verify_password_with_correct_password() {
+        let conn = establish_connection();
+
+        create_user(&conn, "ferdinand", "123456");
+
+        assert!(verify_password(&conn, &"ferdinand".to_string(), &"123456".to_string()));
+    }
+
+    #[test]
+    fn verify_password_with_incorrect_password() {
+        let conn = establish_connection();
+
+        create_user(&conn, "ferdinand", "123456");
+
+        assert_eq!(false, verify_password(&conn, &"ferdinand".to_string(), &"wrong".to_string()));
+    }
 }
