@@ -16,8 +16,9 @@ use pwhash::bcrypt;
 use std::env;
 use self::models::{User, NewUser, Setting, NewSetting};
 
-pub mod schema;
+pub mod auth;
 pub mod models;
+pub mod schema;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
@@ -30,20 +31,6 @@ pub fn get_users<'a>(conn: &PgConnection) -> Vec<User> {
     use schema::users::dsl::*;
 
     users.load::<User>(conn).expect("Error loading users")
-}
-
-pub fn verify_password<'a>(conn: &PgConnection, user: &String, pwd: &String) -> bool {
-    use schema::users::dsl::*;
-
-    let user = match users
-              .filter(username.eq(user))
-              .limit(1)
-              .get_result::<User>(conn) {
-        Ok(user) => user,
-        Err(_) => return false,
-    };
-
-    bcrypt::verify(pwd, &user.password)
 }
 
 pub fn create_user<'a>(conn: &PgConnection, username: &'a str, password: &'a str) -> User {
@@ -94,34 +81,4 @@ pub fn get_setting<'a>(conn: &PgConnection,
         .limit(1)
         .get_result(conn)
         .map_err(|err| err.to_string())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn verify_password_with_nonexistent_user() {
-        let conn = establish_connection();
-
-        assert!(verify_password(&conn, &"ferdinand".to_string(), &"123456".to_string()));
-    }
-
-    #[test]
-    fn verify_password_with_correct_password() {
-        let conn = establish_connection();
-
-        create_user(&conn, "ferdinand", "123456");
-
-        assert!(verify_password(&conn, &"ferdinand".to_string(), &"123456".to_string()));
-    }
-
-    #[test]
-    fn verify_password_with_incorrect_password() {
-        let conn = establish_connection();
-
-        create_user(&conn, "ferdinand", "123456");
-
-        assert_eq!(false, verify_password(&conn, &"ferdinand".to_string(), &"wrong".to_string()));
-    }
 }
