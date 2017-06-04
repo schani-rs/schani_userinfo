@@ -1,7 +1,8 @@
 extern crate schani_userinfo;
 extern crate diesel;
 
-use self::schani_userinfo::*;
+use schani_userinfo::db::establish_connection;
+use schani_userinfo::users::create_user;
 use std::io::stdin;
 
 fn main() {
