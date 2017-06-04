@@ -9,23 +9,15 @@ extern crate pwhash;
 #[macro_use]
 extern crate serde_derive;
 
-use diesel::prelude::*;
-use diesel::pg::PgConnection;
-use dotenv::dotenv;
-use pwhash::bcrypt;
-use std::env;
-use self::models::{User, NewUser, Setting, NewSetting};
-
 pub mod auth;
+pub mod db;
 pub mod models;
 pub mod schema;
 
-pub fn establish_connection() -> PgConnection {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
-}
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+use pwhash::bcrypt;
+use self::models::{User, NewUser, Setting, NewSetting};
 
 pub fn get_users<'a>(conn: &PgConnection) -> Vec<User> {
     use schema::users::dsl::*;

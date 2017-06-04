@@ -3,7 +3,8 @@ extern crate diesel;
 
 use std::env::args;
 
-use self::schani_userinfo::{establish_connection, save_setting};
+use self::schani_userinfo::save_setting;
+use schani_userinfo::db::establish_connection;
 
 fn main() {
     let connection = establish_connection();
