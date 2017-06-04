@@ -10,10 +10,10 @@ use rocket::http::Status;
 use rocket::request::Form;
 use rocket::response::status::Custom;
 use rocket_contrib::JSON;
-use schani_userinfo::*;
-use schani_userinfo::db::establish_connection;
 use schani_userinfo::auth::verify_password;
+use schani_userinfo::db::establish_connection;
 use schani_userinfo::models::Setting;
+use schani_userinfo::settings::{get_setting, save_setting};
 
 #[derive(Debug, FromForm)]
 struct Credentials {

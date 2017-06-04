@@ -19,7 +19,8 @@ pub fn verify_password<'a>(conn: &PgConnection, user: &String, pwd: &String) -> 
 #[cfg(test)]
 mod tests {
     use super::verify_password;
-    use super::super::{establish_connection, create_user};
+    use super::super::db::establish_connection;
+    use super::super::users::create_user;
 
     #[test]
     fn verify_password_with_nonexistent_user() {
