@@ -9,7 +9,7 @@ use std::result::Result;
 use rocket::http::Status;
 use rocket::request::Form;
 use rocket::response::status::Custom;
-use rocket_contrib::JSON;
+use rocket_contrib::Json;
 use schani_userinfo::auth::verify_password;
 use schani_userinfo::db::establish_connection;
 use schani_userinfo::models::Setting;
@@ -52,11 +52,11 @@ fn setting_save(user_id: i32, setting_data: Form<SettingData>) -> Result<(), Cus
 }
 
 #[get("/user/<user_id>/setting/<key>")]
-fn setting_get(user_id: i32, key: String) -> Result<JSON<Setting>, Custom<String>> {
+fn setting_get(user_id: i32, key: String) -> Result<Json<Setting>, Custom<String>> {
     let conn = establish_connection();
 
     match get_setting(&conn, user_id, &key) {
-        Ok(setting) => Ok(JSON(setting)),
+        Ok(setting) => Ok(Json(setting)),
         Err(err) => Err(Custom(Status::InternalServerError, err)),
     }
 }
