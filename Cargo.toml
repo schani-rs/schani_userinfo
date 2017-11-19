@@ -4,12 +4,12 @@ version = "0.1.0"
 authors = ["Christoph Wurst <christoph@winzerhof-wurst.at>"]
 
 [dependencies]
-diesel = { version = "0.12.0", features = ["postgres"] }
-diesel_codegen = { version = "0.11.0", features = ["postgres"] }
-dotenv = "0.8.0"
-rocket = "0.2.8"
-rocket_codegen = "0.2.8"
-rocket_contrib = "0.2.8"
+diesel = { version = "0.16.0", features = ["postgres"] }
+diesel_codegen = { version = "0.16.0", features = ["postgres"] }
+dotenv = "0.10.1"
+rocket = "0.3.3"
+rocket_codegen = "0.3.3"
+rocket_contrib = "0.3.3"
 pwhash = "0.1.2"
-serde = "0.9"
-serde_derive = "0.9"
+serde = "1.0.21"
+serde_derive = "1.0.21"
